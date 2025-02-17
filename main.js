@@ -215,7 +215,7 @@ d3.csv("/data/output.csv").then(function(data) {
             .attr("x", width / 2)
             .attr("y", 40)
             .attr("fill", "black")
-            .text("Speed (km/h)");
+            .text("Speed (mph)");
 
         // Add Y axis with percentage format
         svg.append("g")
@@ -254,7 +254,7 @@ d3.csv("/data/output.csv").then(function(data) {
             .attr("y", -5)
             .attr("text-anchor", "middle")
             .style("fill", "red")
-            .text(`Mean: ${meanSpeed.toFixed(1)} km/h`);
+            .text(`Mean: ${meanSpeed.toFixed(1)} mph`);
 
         // Add interactive tooltip
         const tooltip = d3.select("body")
@@ -274,7 +274,7 @@ d3.csv("/data/output.csv").then(function(data) {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html(`Speed: ${d.x0.toFixed(1)} - ${d.x1.toFixed(1)} km/h<br>Percentage: ${(d.density * 100).toFixed(1)}%`)
+                tooltip.html(`Speed: ${d.x0.toFixed(1)} - ${d.x1.toFixed(1)} mph<br>Percentage: ${(d.density * 100).toFixed(1)}%`)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
             })
