@@ -81,10 +81,20 @@ d3.csv("/data/output.csv").then(function(data) {
                     d3.select(`.${category.toLowerCase()}-all`).classed("active", false);
                     // Toggle this button's active state
                     d3.select(this).classed("active", !d3.select(this).classed("active"));
-                    // If no specific ranges are selected, reactivate "All"
-                    if (d3.selectAll(`.${category.toLowerCase()}-button.active`).empty()) {
+                    
+                    // Check if all range buttons are selected
+                    const totalRangeButtons = ranges.length;
+                    const selectedRangeButtons = d3.selectAll(`.${category.toLowerCase()}-button.active`).size();
+                    
+                    if (selectedRangeButtons === totalRangeButtons) {
+                        // If all ranges are selected, activate "All" and deactivate others
+                        d3.selectAll(`.${category.toLowerCase()}-button`).classed("active", false);
+                        d3.select(`.${category.toLowerCase()}-all`).classed("active", true);
+                    } else if (selectedRangeButtons === 0) {
+                        // If no ranges are selected, activate "All"
                         d3.select(`.${category.toLowerCase()}-all`).classed("active", true);
                     }
+                    
                     updateFilters();
                 });
         });
@@ -113,9 +123,19 @@ d3.csv("/data/output.csv").then(function(data) {
                 .on("click", function() {
                     d3.select(".gender-all").classed("active", false);
                     d3.select(this).classed("active", !d3.select(this).classed("active"));
-                    if (d3.selectAll(".gender-button.active").empty()) {
+                    
+                    // Check if both gender buttons are selected
+                    const selectedGenderButtons = d3.selectAll(".gender-button.active").size();
+                    
+                    if (selectedGenderButtons === 2) {
+                        // If both genders are selected, activate "All" and deactivate others
+                        d3.selectAll(".gender-button").classed("active", false);
+                        d3.select(".gender-all").classed("active", true);
+                    } else if (selectedGenderButtons === 0) {
+                        // If no genders are selected, activate "All"
                         d3.select(".gender-all").classed("active", true);
                     }
+                    
                     updateFilters();
                 });
         });
