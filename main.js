@@ -64,20 +64,27 @@ d3.csv("/data/output.csv").then(function(data) {
 
         container.append("button")
             .text("All")
-            .attr("class", "filter-button active")
+            .attr("class", `filter-button ${category.toLowerCase()}-all active`)
             .on("click", function() {
-                d3.selectAll(`.${category}-button`).classed("active", false);
-                d3.select(this).classed("active", true);
+                // When "All" is clicked, deactivate all other buttons in this category
+                d3.selectAll(`.${category.toLowerCase()}-button`).classed("active", false);
+                d3.select(`.${category.toLowerCase()}-all`).classed("active", true);
                 updateFilters();
             });
 
         ranges.forEach(range => {
             container.append("button")
                 .text(`${range.min}-${range.max}`)
-                .attr("class", `filter-button ${category}-button`)
+                .attr("class", `filter-button ${category.toLowerCase()}-button`)
                 .on("click", function() {
-                    d3.selectAll(`.${category}-button`).classed("active", false);
-                    d3.select(this).classed("active", true);
+                    // Deactivate "All" button when a specific range is selected
+                    d3.select(`.${category.toLowerCase()}-all`).classed("active", false);
+                    // Toggle this button's active state
+                    d3.select(this).classed("active", !d3.select(this).classed("active"));
+                    // If no specific ranges are selected, reactivate "All"
+                    if (d3.selectAll(`.${category.toLowerCase()}-button.active`).empty()) {
+                        d3.select(`.${category.toLowerCase()}-all`).classed("active", true);
+                    }
                     updateFilters();
                 });
         });
@@ -92,10 +99,10 @@ d3.csv("/data/output.csv").then(function(data) {
 
         container.append("button")
             .text("All")
-            .attr("class", "filter-button active")
+            .attr("class", "filter-button gender-all active")
             .on("click", function() {
                 d3.selectAll(".gender-button").classed("active", false);
-                d3.select(this).classed("active", true);
+                d3.select(".gender-all").classed("active", true);
                 updateFilters();
             });
 
@@ -104,31 +111,50 @@ d3.csv("/data/output.csv").then(function(data) {
                 .text(gender)
                 .attr("class", "filter-button gender-button")
                 .on("click", function() {
-                    d3.selectAll(".gender-button").classed("active", false);
-                    d3.select(this).classed("active", true);
+                    d3.select(".gender-all").classed("active", false);
+                    d3.select(this).classed("active", !d3.select(this).classed("active"));
+                    if (d3.selectAll(".gender-button.active").empty()) {
+                        d3.select(".gender-all").classed("active", true);
+                    }
                     updateFilters();
                 });
         });
     }
 
     function updateFilters() {
-        let filteredData = data;
+        let filteredData = [...data];  // Create a fresh copy of the original data
 
-        // Apply each active filter
-        const activeFilters = d3.selectAll(".filter-button.active").nodes();
-        activeFilters.forEach(button => {
-            const filterText = button.textContent;
-            if (filterText !== "All") {
-                if (filterText === "Male" || filterText === "Female") {
-                    filteredData = filteredData.filter(d => d.Sex === (filterText === "Male" ? 0 : 1));
-                } else {
-                    const [min, max] = filterText.split("-").map(Number);
-                    const category = button.parentNode.querySelector("h3").textContent;
-                    filteredData = filteredData.filter(d => d[category] >= min && d[category] <= max);
-                }
+        // Get all filter categories
+        const categories = ["Age", "Weight", "Height", "Gender"];
+        
+        categories.forEach(category => {
+            // Skip if "All" is selected for this category
+            if (d3.select(`.${category.toLowerCase()}-all`).classed("active")) {
+                return;
+            }
+
+            // Get all active filters for this category
+            const activeFilters = d3.selectAll(`.${category.toLowerCase()}-button.active`).nodes();
+            
+            if (activeFilters.length > 0) {
+                filteredData = filteredData.filter(d => {
+                    return activeFilters.some(button => {
+                        const filterText = button.textContent;
+                        if (category === "Gender") {
+                            return d.Sex === (filterText === "Male" ? 0 : 1);
+                        } else {
+                            const [min, max] = filterText.split("-").map(Number);
+                            return d[category] >= min && d[category] <= max;
+                        }
+                    });
+                });
             }
         });
 
+        // Add console logs for debugging
+        console.log("Active filters:", d3.selectAll(".filter-button.active").nodes().map(n => n.textContent));
+        console.log("Filtered data length:", filteredData.length);
+        
         updateHistogram(filteredData);
     }
 

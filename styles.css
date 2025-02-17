@@ -75,14 +75,26 @@ footer {
     color: #007BFF;
     border-radius: 4px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .filter-button.active {
     background-color: #007BFF;
     color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .filter-button:hover {
     background-color: #0056b3;
     color: white;
+    transform: translateY(-1px);
+}
+
+/* Add a subtle indicator for multi-select capability */
+.filter-category::after {
+    content: "(Multiple selections allowed)";
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
 }
