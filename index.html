@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Page Title</title>
+    <title>Running Speed Distribution</title>
     <link rel="stylesheet" href="./styles.css">
+    <!-- Include D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
     <header>
-        <h1>Welcome to My Visual Page</h1>
+        <h1>Running Speed Distribution</h1>
     </header>
     
     <main>
         <section>
-            <h2>My Visual</h2>
-            <!-- Insert your visual here -->
-            <img src="./imgs/actual_visual.png" alt="Description of the image" class="responsive-image">
-            <!-- Or for a video -->
-            <!-- <video controls class="responsive-video">
-                <source src="path/to/your/video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video> -->
+            <h2>Running Speed Distribution</h2>
+            <!-- Container for the D3 visualization -->
+            <div id="visualization"></div>
         </section>
     </main>
 
+    <footer>
+        <p>&copy; 2023 Your Name</p>
+    </footer>
+
+    <!-- Include your JavaScript file -->
+    <script src="./main.js"></script>
 </body>
 </html>
