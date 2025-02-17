@@ -35,9 +35,9 @@ d3.csv("/data/output.csv").then(function(data) {
     ];
 
     const weightRanges = [
-        {min: 50, max: 70},
-        {min: 71, max: 90},
-        {min: 91, max: 110}
+        {min: 40, max: 65},
+        {min: 65, max: 80},
+        {min: 80, max: 135}
     ];
 
     const heightRanges = [
@@ -151,8 +151,14 @@ d3.csv("/data/output.csv").then(function(data) {
 
         const bins = histogram(filteredData);
 
+        // Calculate density (proportion) for each bin
+        const totalCount = filteredData.length;
+        bins.forEach(bin => {
+            bin.density = bin.length / totalCount;
+        });
+
         const y = d3.scaleLinear()
-            .domain([0, d3.max(bins, d => d.length)])
+            .domain([0, d3.max(bins, d => d.density)])
             .range([height, 0]);
 
         // Add X axis
@@ -165,24 +171,24 @@ d3.csv("/data/output.csv").then(function(data) {
             .attr("fill", "black")
             .text("Speed (km/h)");
 
-        // Add Y axis
+        // Add Y axis with percentage format
         svg.append("g")
-            .call(d3.axisLeft(y))
+            .call(d3.axisLeft(y).tickFormat(d => `${(d * 100).toFixed(1)}%`))
             .append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", -40)
             .attr("x", -height / 2)
             .attr("fill", "black")
-            .text("Frequency");
+            .text("Percentage of Runners");
 
         // Add the bars
         svg.selectAll("rect")
             .data(bins)
             .join("rect")
             .attr("x", d => x(d.x0))
-            .attr("y", d => y(d.length))
+            .attr("y", d => y(d.density))
             .attr("width", d => x(d.x1) - x(d.x0))
-            .attr("height", d => height - y(d.length))
+            .attr("height", d => height - y(d.density))
             .style("fill", "#007BFF")
             .style("opacity", 0.7);
 
@@ -222,7 +228,7 @@ d3.csv("/data/output.csv").then(function(data) {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html(`Speed: ${d.x0.toFixed(1)} - ${d.x1.toFixed(1)} km/h<br>Count: ${d.length}`)
+                tooltip.html(`Speed: ${d.x0.toFixed(1)} - ${d.x1.toFixed(1)} km/h<br>Percentage: ${(d.density * 100).toFixed(1)}%`)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
             })
