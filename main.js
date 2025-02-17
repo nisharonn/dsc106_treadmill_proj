@@ -17,7 +17,7 @@ const svg = d3.select("#visualization")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
 // Load and process the data
-d3.csv("./output.csv").then(function(data) {
+d3.csv("./data/output.csv").then(function(data) {
     // Convert string values to numbers
     data.forEach(d => {
         d.Speed = +d.Speed;
