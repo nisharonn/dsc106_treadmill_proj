@@ -1,13 +1,11 @@
 // Set the dimensions and margins of the graph
 const margin = {top: 40, right: 30, bottom: 50, left: 70};
 const width = 800 - margin.left - margin.right;
-const height = 400 - margin.top - margin.bottom;
+const height = 450 - margin.top - margin.bottom;
 
 // Define fixed scales for x and y axes
 const xMin = 0;
 const xMax = 15; 
-const yMin = 0;
-const yMax = 0.4;
 
 // Create filter button container divs
 const filterContainer = d3.select("#visualization")
@@ -17,8 +15,8 @@ const filterContainer = d3.select("#visualization")
 // Create the SVG container
 const svg = d3.select("#visualization")
     .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr("preserveAspectRatio", "xMidYMid meet") 
     .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -77,9 +75,7 @@ d3.csv("./output.csv").then(function(data) {
         }
 
         container.append("h3")
-            .text(`${category} (${units[category]})`);
-        // container.append("h3")
-        //     .text(category);
+            .text(category === "Weight" ? "Weight (lbs)" : category === "Height" ? "Height (in)" : category);
 
         container.append("button")
             .text("All")
@@ -226,9 +222,12 @@ d3.csv("./output.csv").then(function(data) {
             bin.density = totalCount > 0 ? bin.length / totalCount : 0;
         });
 
+        const maxDensity = d3.max(bins, bin => bin.density);
+        const dynamicYMax = Math.max(0.35, maxDensity);
+
         // Create fixed y scale
         const y = d3.scaleLinear()
-            .domain([yMin, yMax])
+            .domain([0, dynamicYMax])
             .range([height, 0]);
 
         // Add X axis
@@ -241,19 +240,25 @@ d3.csv("./output.csv").then(function(data) {
             .attr("y", 40)
             .attr("text-anchor", "middle") 
             .attr("fill", "black")
-            .text("Speed (mph)");
+            .text("Max Speed (mph)");
+
+        xAxis.selectAll("text")
+            .style("font-size", "1.4em");
 
         // Add Y axis with percentage format
         const yAxis = svg.append("g")
             .call(d3.axisLeft(y).tickFormat(d => `${(d * 100).toFixed(1)}%`));
-        
+
         yAxis.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", -50) 
+            .attr("y", -60) 
             .attr("x", -height / 2)
             .attr("text-anchor", "middle")  
             .attr("fill", "black")
             .text("Percentage of Runners");
+
+        yAxis.selectAll("text")
+            .style("font-size", "1.4em");
 
         // Add the bars
         svg.selectAll("rect")
@@ -263,7 +268,7 @@ d3.csv("./output.csv").then(function(data) {
             .attr("y", d => y(d.density))
             .attr("width", d => x(d.x1) - x(d.x0))
             .attr("height", d => height - y(d.density))
-            .style("fill", "#007BFF")
+            .style("fill", "#84a7c9")
             .style("opacity", 0.7);
 
         // Only show mean line if we have data
@@ -274,47 +279,57 @@ d3.csv("./output.csv").then(function(data) {
                 .attr("x2", x(meanSpeed))
                 .attr("y1", 0)
                 .attr("y2", height)
-                .style("stroke", "red")
-                .style("stroke-width", 2)
+                .style("stroke", "#5484e7")
+                .style("stroke-width", 2.5)
                 .style("stroke-dasharray", "4");
 
             // Add mean label
             svg.append("text")
                 .attr("x", x(meanSpeed))
-                .attr("y", -5)
+                .attr("y", -8)
                 .attr("text-anchor", "middle")
-                .style("fill", "red")
-                .text(`Mean: ${meanSpeed.toFixed(1)} mph`);
+                .style("fill", "#013da5")
+                .text(`mean: ${meanSpeed.toFixed(1)} mph`);
         }
 
         // Add interactive tooltip
         const tooltip = d3.select("body")
             .append("div")
-            .style("position", "absolute")
-            .style("background-color", "white")
-            .style("padding", "10px")
-            .style("border", "1px solid #ddd")
-            .style("border-radius", "4px")
+            .attr("class", "tooltip") 
             .style("opacity", 0);
 
         // Add hover effects
         svg.selectAll("rect")
             .on("mouseover", function(event, d) {
                 d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .ease(d3.easeCubic)
                     .style("opacity", 1);
+
                 tooltip.transition()
                     .duration(200)
-                    .style("opacity", .9);
-                tooltip.html(`Speed: ${d.x0.toFixed(1)} - ${d.x1.toFixed(1)} mph<br>Percentage: ${(d.density * 100).toFixed(1)}%`)
+                    .style("opacity", .9)
+                    .attr("class", "tooltip show");
+
+                tooltip.html(`
+                    Speed: <b>${d.x0.toFixed(1)} - ${d.x1.toFixed(1)} mph </b><br>
+                    Percentage: <b>${(d.density * 100).toFixed(1)}%</b>`)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
             })
             .on("mouseout", function() {
                 d3.select(this)
+                    .transition()
+                    .duration(300)
+                    .ease(d3.easeCubic)
                     .style("opacity", 0.7);
+
                 tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
+                    .duration(300)
+                    .delay(100)
+                    .style("opacity", 0)
+                    .attr("class", "tooltip");
             });
     }
 }).catch(function(error) {

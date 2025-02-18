@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Running Speed Distribution</title>
+    <title> Max Running Speed Distribution</title>
     <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./main.js"></script>
     <!-- Include D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+
 </head>
 <body>
     <header>
-        <h1>Running Speed Distribution (<a href="writeup/writeup.pdf", target="_blank">Write-Up</a>)</h1>
+        <h1> Max Running Speed Distribution (<a href="writeup/writeup.pdf", target="_blank">Write-Up</a>)</h1>
     </header>
     
     <main>
         <section>
+            <h1 class="title"> How do you stack up against other runners? </h1>
+            <p> Filter by gender, age, weight, and height to see how your max running speed compares to others in your group, or simply explore speeds across different groups!</p>
+            <p style="font-size: 0.9em; color: #777;"> (multiple selections are allowed for each category) </p>
             <!-- Container for the D3 visualization -->
             <div id="visualization"></div>
         </section>
     </main>
-
-    <!-- Include your JavaScript file -->
-    <script src="./main.js"></script>
+    
 </body>
 </html>
