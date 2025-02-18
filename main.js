@@ -59,9 +59,9 @@ d3.csv("./output.csv").then(function(data) {
 
     // Create filter buttons
     createGenderButtons();
-    createFilterButtons("Age (Years)", ageRanges);
-    createFilterButtons("Weight (Pounds)", weightRanges);
-    createFilterButtons("Height (Inches)", heightRanges);
+    createFilterButtons("Age", ageRanges);
+    createFilterButtons("Weight", weightRanges);
+    createFilterButtons("Height", heightRanges);
 
     // Initial histogram with all data
     updateHistogram(data);
@@ -69,9 +69,17 @@ d3.csv("./output.csv").then(function(data) {
     function createFilterButtons(category, ranges) {
         const container = filterContainer.append("div")
             .attr("class", "filter-category");
-        
+
+        let units = {
+            "Age": "Years",
+            "Weight": "Pounts",
+            "Height": "Inches"
+        }
+
         container.append("h3")
-            .text(category);
+            .text(`${category} (${units[category]})`);
+        // container.append("h3")
+        //     .text(category);
 
         container.append("button")
             .text("All")
