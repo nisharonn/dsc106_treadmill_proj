@@ -69,9 +69,17 @@ d3.csv("./output.csv").then(function(data) {
     function createFilterButtons(category, ranges) {
         const container = filterContainer.append("div")
             .attr("class", "filter-category");
-        
+
+        let units = {
+            "Age": "Years",
+            "Weight": "Pounts",
+            "Height": "Inches"
+        }
+
         container.append("h3")
-            .text(category);
+            .text(`${category} (${units[category]})`);
+        // container.append("h3")
+        //     .text(category);
 
         container.append("button")
             .text("All")
