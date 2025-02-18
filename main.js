@@ -59,9 +59,9 @@ d3.csv("./output.csv").then(function(data) {
 
     // Create filter buttons
     createGenderButtons();
-    createFilterButtons("Age", ageRanges);
-    createFilterButtons("Weight", weightRanges);
-    createFilterButtons("Height", heightRanges);
+    createFilterButtons("Age (Years)", ageRanges);
+    createFilterButtons("Weight (Pounds)", weightRanges);
+    createFilterButtons("Height (Inches)", heightRanges);
 
     // Initial histogram with all data
     updateHistogram(data);

@@ -99,6 +99,7 @@ footer {
     margin-top: 5px;
 }
 
-a:visited {
+
+a, a:visited {
     color: inherit;
 }
