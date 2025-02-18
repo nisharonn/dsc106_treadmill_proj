@@ -98,3 +98,7 @@ footer {
     color: #666;
     margin-top: 5px;
 }
+
+a:visited {
+    color: inherit;
+}
