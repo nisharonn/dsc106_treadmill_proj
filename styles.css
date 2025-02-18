@@ -46,16 +46,6 @@ h1, h2 {
     margin: 20px auto;
 }
 
-footer {
-    text-align: center;
-    padding: 10px 0;
-    background-color: #333;
-    color: white;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-}
-
 .filters {
     margin-bottom: 20px;
     display: flex;
