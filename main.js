@@ -1,7 +1,13 @@
 // Set the dimensions and margins of the graph
-const margin = {top: 40, right: 30, bottom: 50, left: 60};
+const margin = {top: 40, right: 30, bottom: 50, left: 70};
 const width = 800 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
+
+// Define fixed scales for x and y axes
+const xMin = 0;
+const xMax = 15; 
+const yMin = 0;
+const yMax = 0.4;
 
 // Create filter button container divs
 const filterContainer = d3.select("#visualization")
@@ -29,28 +35,33 @@ d3.csv("./output.csv").then(function(data) {
 
     // Create filter ranges
     const ageRanges = [
-        {min: 10, max: 20},
-        {min: 20, max: 35},
-        {min: 35, max: 60}
+        {min: 10, max: 19},
+        {min: 20, max: 29},
+        {min: 30, max: 39},
+        {min: 40, max: 49},
+        {min: 50, max: 65},
     ];
 
     const weightRanges = [
-        {min: 40, max: 65},
-        {min: 65, max: 80},
-        {min: 80, max: 135}
+        {min: 90, max: 119},
+        {min: 120, max: 149},
+        {min: 190, max: 219},
+        {min: 220, max: 249},
+        {min: 250, max: 300}
     ];
 
     const heightRanges = [
-        {min: 150, max: 170},
-        {min: 170, max: 180},
-        {min: 180, max: 205}
+        {min: 60, max: 64},
+        {min: 65, max: 69},
+        {min: 70, max: 74},
+        {min: 75, max: 80},
     ];
 
     // Create filter buttons
+    createGenderButtons();
     createFilterButtons("Age", ageRanges);
     createFilterButtons("Weight", weightRanges);
     createFilterButtons("Height", heightRanges);
-    createGenderButtons();
 
     // Initial histogram with all data
     updateHistogram(data);
@@ -185,45 +196,54 @@ d3.csv("./output.csv").then(function(data) {
         // Calculate mean speed
         const meanSpeed = d3.mean(filteredData, d => d.Speed);
 
-        // Create scales
+        // Create fixed x scale
         const x = d3.scaleLinear()
-            .domain([0, d3.max(filteredData, d => d.Speed)])
+            .domain([xMin, xMax])
             .range([0, width]);
+
+        // Create histogram with fixed number of bins (15)
+        const binWidth = (xMax - xMin) / 15;
+        const thresholds = Array.from({length: 21}, (_, i) => xMin + i * binWidth);
 
         const histogram = d3.histogram()
             .value(d => d.Speed)
             .domain(x.domain())
-            .thresholds(x.ticks(20));
+            .thresholds(thresholds);
 
         const bins = histogram(filteredData);
 
         // Calculate density (proportion) for each bin
         const totalCount = filteredData.length;
         bins.forEach(bin => {
-            bin.density = bin.length / totalCount;
+            bin.density = totalCount > 0 ? bin.length / totalCount : 0;
         });
 
+        // Create fixed y scale
         const y = d3.scaleLinear()
-            .domain([0, d3.max(bins, d => d.density)])
+            .domain([yMin, yMax])
             .range([height, 0]);
 
         // Add X axis
-        svg.append("g")
+        const xAxis = svg.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .append("text")
+            .call(d3.axisBottom(x));
+        
+        xAxis.append("text")
             .attr("x", width / 2)
             .attr("y", 40)
+            .attr("text-anchor", "middle") 
             .attr("fill", "black")
             .text("Speed (mph)");
 
         // Add Y axis with percentage format
-        svg.append("g")
-            .call(d3.axisLeft(y).tickFormat(d => `${(d * 100).toFixed(1)}%`))
-            .append("text")
+        const yAxis = svg.append("g")
+            .call(d3.axisLeft(y).tickFormat(d => `${(d * 100).toFixed(1)}%`));
+        
+        yAxis.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", -40)
+            .attr("y", -50) 
             .attr("x", -height / 2)
+            .attr("text-anchor", "middle")  
             .attr("fill", "black")
             .text("Percentage of Runners");
 
@@ -238,23 +258,26 @@ d3.csv("./output.csv").then(function(data) {
             .style("fill", "#007BFF")
             .style("opacity", 0.7);
 
-        // Add mean line
-        svg.append("line")
-            .attr("x1", x(meanSpeed))
-            .attr("x2", x(meanSpeed))
-            .attr("y1", 0)
-            .attr("y2", height)
-            .style("stroke", "red")
-            .style("stroke-width", 2)
-            .style("stroke-dasharray", "4");
+        // Only show mean line if we have data
+        if (filteredData.length > 0 && meanSpeed !== undefined) {
+            // Add mean line
+            svg.append("line")
+                .attr("x1", x(meanSpeed))
+                .attr("x2", x(meanSpeed))
+                .attr("y1", 0)
+                .attr("y2", height)
+                .style("stroke", "red")
+                .style("stroke-width", 2)
+                .style("stroke-dasharray", "4");
 
-        // Add mean label
-        svg.append("text")
-            .attr("x", x(meanSpeed))
-            .attr("y", -5)
-            .attr("text-anchor", "middle")
-            .style("fill", "red")
-            .text(`Mean: ${meanSpeed.toFixed(1)} mph`);
+            // Add mean label
+            svg.append("text")
+                .attr("x", x(meanSpeed))
+                .attr("y", -5)
+                .attr("text-anchor", "middle")
+                .style("fill", "red")
+                .text(`Mean: ${meanSpeed.toFixed(1)} mph`);
+        }
 
         // Add interactive tooltip
         const tooltip = d3.select("body")
